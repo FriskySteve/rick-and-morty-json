@@ -1,0 +1,34 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="filters-container">
+      <label>
+        Filtry:
+        <input type="text" id="api-name" placeholder="Wyszukaj po nazwie..." />
+      </label>
+      <label>
+        <input type="radio" name="status" value="alive" checked />
+        Żywy
+      </label>
+      <label>
+        <input type="radio" name="status" value="dead" />
+        Martwy
+      </label>
+      <label>
+        <input type="radio" name="status" value="unknown" />
+        Nieznany
+      </label>
+    </div>
+    <div id="characters-container"></div>
+    <div id="buttons-container">
+      <button id="btn-prev"><<<</button>
+      <button id="btn-next">>>></button>
+    </div>
+    <script src="index.js"></script>
+  </body>
+</html>
