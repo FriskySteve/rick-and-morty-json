@@ -46,3 +46,21 @@ img {
   background-color: blue;
   color: azure;
 }
+form {
+  display: flex;
+  flex-direction: column;
+  width: 30%;
+  gap: 10px;
+  background-color: white;
+  padding: 10px;
+}
+form button {
+  background-color: blue;
+  color: white;
+}
+#form-container {
+  width: 50%;
+  display: flex;
+  align-content: center;
+  justify-content: center;
+}

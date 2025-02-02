@@ -1,9 +1,71 @@
-let apiName = "";
-let apiStatus = "alive";
-let apiURL = `https://rickandmortyapi.com/api/character/?status=${apiStatus}&name=${apiName}`;
-let next = "";
-let prev = false;
 const charactersContainer = document.querySelector("#characters-container");
+let page = 2;
+let jsonUrl = `http://localhost:3000/characters?_page=${page}&_per_page=5`;
+let jsonUrl2 = `http://localhost:3000/characters?_page=${page}&_per_page=5`;
+
+function getNewCharacterData(id) {
+  const characterName = document.querySelector("#character-name");
+  const characterStatus = document.querySelector("#character-status");
+  const characterSpecies = document.querySelector("#character-species");
+  const addCharacterBtn = document.querySelector("#submit");
+
+  addCharacterBtn.addEventListener("click", async (event) => {
+    event.preventDefault();
+    try {
+      const character = {
+        id: id + 1,
+        name: characterName.value,
+        status: characterStatus.value,
+        species: characterSpecies.value,
+        image: "https://rickandmortyapi.com/api/character/avatar/3.jpeg",
+      };
+      const response = await fetch("http://localhost:3000/characters", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(character),
+      });
+      const data = await response.json();
+
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    }
+  });
+}
+
+async function addCharacter(character, charactersData) {
+  try {
+    const characterData = {
+      id: charactersData.items + 1,
+      name: character.name,
+      status: character.status,
+      species: character.species,
+      image: "https://rickandmortyapi.com/api/character/avatar/3.jpeg",
+    };
+    const response = await fetch("http://localhost:3000/characters", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(characterData),
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function fetchCharacters(url) {
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    console.log(data);
+    return data;
+  } catch (error) {
+    console.log("Cos sie syplo.. ", error);
+  }
+}
 
 function addMessage() {
   clearCharacterCards();
@@ -11,31 +73,32 @@ function addMessage() {
     "Nie znaleziono postaci spełniających kryteria wyszukiwania.";
 }
 
-function setApiName() {
-  const apiNameInput = document.querySelector("#api-name");
-  apiNameInput.addEventListener("input", () => {
-    apiName = apiNameInput.value.trim();
-    const updatedUrl = `https://rickandmortyapi.com/api/character/?status=${apiStatus}&name=${apiName}`;
-    updateCharacterCards(updatedUrl);
-  });
-}
-
-function navigate() {
+function navigate(data) {
   const btnPrev = document.querySelector("#btn-prev");
   const btnNext = document.querySelector("#btn-next");
 
-  btnPrev.addEventListener("click", () => {
-    if (prev) {
-      updateCharacterCards(prev);
+  btnPrev.addEventListener("click", async () => {
+    if (page >= data.first) {
+      page -= 1;
+      //   await main(`http://localhost:3000/characters?_page=${page}&_per_page=5`);
+      await updateCharacterCards(
+        `http://localhost:3000/characters?_page=${page}&_per_page=5`
+      );
     } else {
       addMessage();
+      page = 0;
     }
   });
-  btnNext.addEventListener("click", () => {
-    if (next) {
-      updateCharacterCards(next);
+  btnNext.addEventListener("click", async () => {
+    if (page <= data.last) {
+      page += 1;
+      //   await main(`http://localhost:3000/characters?_page=${page}&_per_page=5`);
+      await updateCharacterCards(
+        `http://localhost:3000/characters?_page=${page}&_per_page=5`
+      );
     } else {
       addMessage();
+      page = data.last + 1;
     }
   });
 }
@@ -47,36 +110,10 @@ function clearCharacterCards() {
 async function updateCharacterCards(url) {
   clearCharacterCards();
 
-  const characterData = await fetchRickAndMortyCharacters(url);
-  characterData.forEach((character) => {
+  const characterData = await fetchCharacters(url);
+  characterData.data.forEach((character) => {
     createCharacterCards(character);
   });
-}
-
-function setApiStatus() {
-  const radioButtons = document.querySelectorAll('input[name="status"]');
-  radioButtons.forEach((button) => {
-    button.addEventListener("change", () => {
-      if (button.checked) {
-        apiStatus = button.value;
-        const updatedUrl = `https://rickandmortyapi.com/api/character/?status=${apiStatus}&name=${apiName}`;
-        updateCharacterCards(updatedUrl);
-      }
-    });
-  });
-}
-
-async function fetchRickAndMortyCharacters(url) {
-  try {
-    const response = await fetch(url);
-    const character = await response.json();
-    next = character.info.next;
-    prev = character.info.prev;
-    return character.results;
-  } catch (error) {
-    console.log(error);
-    addMessage();
-  }
 }
 
 function createCharacterCards(characterData) {
@@ -101,14 +138,15 @@ function createCharacterCards(characterData) {
   charactersContainer.appendChild(container);
 }
 
-async function main() {
-  const characterData = await fetchRickAndMortyCharacters(apiURL);
-  characterData.forEach((character) => {
+async function main(url) {
+  clearCharacterCards();
+  const characterData = await fetchCharacters(url);
+  characterData.data.forEach((character) => {
     createCharacterCards(character);
   });
-  setApiStatus();
-  setApiName();
-  navigate();
+  navigate(characterData);
+  getNewCharacterData(characterData.items);
+  //   console.log(characterData.items);
 }
 
-main();
+main(jsonUrl);
