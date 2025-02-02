@@ -10,6 +10,10 @@ body {
   border-radius: 16px;
   background-color: white;
   width: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 10px;
 }
 .sheet img {
   border-radius: 16px;
@@ -63,4 +67,7 @@ form button {
   display: flex;
   align-content: center;
   justify-content: center;
+}
+.delete {
+  width: 90%;
 }
