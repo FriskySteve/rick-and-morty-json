@@ -7,10 +7,6 @@ const filter = {
   pagination: "?_limit=5",
   lastId: "",
 };
-const operator = {
-  first: 1,
-  last: 1,
-};
 
 async function fetchCharacters() {
   clearCharacterCards();
