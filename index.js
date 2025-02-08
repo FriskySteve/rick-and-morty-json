@@ -4,7 +4,8 @@ const filter = {
   name: "",
   status: "Alive",
   page: 1,
-  pagination: "?_per_page=5",
+  pagination: "?_limit=5",
+  lastId: "",
 };
 const operator = {
   first: 1,
@@ -17,11 +18,17 @@ async function fetchCharacters() {
     const urlToFetch = `${jsonUrl}${filter.pagination}&name_like=${filter.name}&status=${filter.status}&_page=${filter.page}`;
     const response = await fetch(urlToFetch);
     const data = await response.json();
-    operator.first = data.first;
-    operator.last = data.last;
-    data.data.forEach((character) => {
-      createCharacterCards(character);
-    });
+    if (data.length > 0) {
+      data.forEach((character) => {
+        createCharacterCards(character);
+      });
+    } else {
+      addMessage();
+    }
+    const dataWithId = await fetch(jsonUrl);
+    const id = await dataWithId.json();
+    filter.lastId = id.length;
+
     return data;
   } catch (error) {
     console.log("Cos sie syplo.. ", error);
@@ -54,12 +61,10 @@ function getNewCharacterData() {
 
   addCharacterBtn.addEventListener("click", async (event) => {
     event.preventDefault();
-    const dataWithId = await fetch(jsonUrl);
-    const id = await dataWithId.json();
 
     try {
       const character = {
-        id: id.length + 1,
+        id: filter.lastId + 1,
         name: characterName.value,
         status: characterStatus.value,
         species: characterSpecies.value,
@@ -89,22 +94,16 @@ function navigate() {
   const btnNext = document.querySelector("#btn-next");
 
   btnPrev.addEventListener("click", () => {
-    if (filter.page > operator.first) {
-      filter.page -= 1;
-      fetchCharacters();
-    } else {
+    filter.page -= 1;
+    if (filter.page < 1) {
       addMessage();
-      filter.page = 0;
+    } else {
+      fetchCharacters();
     }
   });
   btnNext.addEventListener("click", () => {
-    if (filter.page < operator.last) {
-      filter.page += 1;
-      fetchCharacters();
-    } else {
-      addMessage();
-      filter.page = operator.last + 1;
-    }
+    filter.page += 1;
+    fetchCharacters();
   });
 }
 
@@ -144,7 +143,6 @@ function createCharacterCards(characterData) {
   );
   charactersContainer.appendChild(container);
 }
-async function test(id) {}
 
 function main() {
   fetchCharacters();
